@@ -36,5 +36,5 @@ mpiexec -n N ./artist_count_mpi.exe
 
 ```bash
 # Executar análise de sentimentos
-.\run_sentiment_analysis.bat
+python sentiment_analysis.py
 ```
