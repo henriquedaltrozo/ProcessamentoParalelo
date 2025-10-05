@@ -43,7 +43,13 @@ clean-exec:
 
 clean-results:
 	@echo Removendo arquivos de resultado...
-	-del word_count_results.txt artist_count_results.txt 2>nul || true
+	-del word_count_results.txt artist_count_results.txt sentiment_analysis_results.txt 2>nul || true
+
+sentiment-analysis:
+	@echo Executando análise de sentimentos...
+	@if not exist sentiment_analysis_env (echo Criando ambiente virtual Python... && python -m venv sentiment_analysis_env)
+	@echo Ativando ambiente e executando análise...
+	@call run_sentiment_analysis.bat
 
 check-mpi:
 	@echo Verificando instalação do MPI...
@@ -52,22 +58,31 @@ check-mpi:
 	@echo Verificando compilador gcc...
 	@gcc --version
 
+check-python:
+	@echo Verificando instalação do Python...
+	@python --version
+	@echo.
+	@echo Verificando Ollama...
+	@ollama --version
+
 help:
 	@echo.
-	@echo Makefile para programas MPI de processamento de dados do Spotify
+	@echo Makefile para programas de processamento de dados do Spotify
 	@echo.
 	@echo Comandos disponíveis:
-	@echo   make                    - Compila ambos os programas
-	@echo   make all                - Compila ambos os programas
+	@echo   make                    - Compila ambos os programas MPI
+	@echo   make all                - Compila ambos os programas MPI
 	@echo   make word_count_mpi.exe - Compila apenas o programa de contagem de palavras
 	@echo   make artist_count_mpi.exe - Compila apenas o programa de contagem de artistas
 	@echo   make run-words          - Executa contagem de palavras com 4 processos
 	@echo   make run-artists        - Executa contagem de artistas com 4 processos
-	@echo   make run-all            - Executa ambos os programas
+	@echo   make run-all            - Executa ambos os programas MPI
+	@echo   make sentiment-analysis - Executa análise de sentimentos (Python + Ollama)
 	@echo   make clean              - Remove executáveis e arquivos de resultado
 	@echo   make clean-exec         - Remove apenas os executáveis
 	@echo   make clean-results      - Remove apenas os arquivos de resultado
 	@echo   make check-mpi          - Verifica instalação do MPI
+	@echo   make check-python       - Verifica instalação do Python e Ollama
 	@echo   make help               - Mostra esta ajuda
 	@echo.
 	@echo Para executar com número diferente de processos:
@@ -75,4 +90,4 @@ help:
 	@echo   mpiexec -n [num_processos] ./artist_count_mpi.exe
 	@echo.
 
-.PHONY: all run-words run-artists run-all clean clean-exec clean-results check-mpi help
+.PHONY: all run-words run-artists run-all sentiment-analysis clean clean-exec clean-results check-mpi check-python help
