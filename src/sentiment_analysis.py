@@ -5,6 +5,7 @@ Classifica letras em: Positiva, Neutra, Negativa usando Ollama
 """
 
 import csv
+import os
 import re
 import time
 import io
@@ -115,8 +116,8 @@ def main():
         return
     
     # Configurações
-    csv_file = "data/spotify_millsongdata.csv"
-    max_songs = 50  # Limite otimizado para demonstração
+    csv_file = "../data/spotify_millsongdata.csv"
+    max_songs = 20  # Limite otimizado para demonstração
     
     counts = defaultdict(int)
     processed = 0
@@ -190,7 +191,9 @@ def main():
     print(f"{'Total':>10}: {total:>4} músicas")
     
     # Salva resultados
-    output_file = "sentiment_analysis_results.txt"
+    output_dir = os.path.join(os.path.dirname(__file__), "..", "results")
+    os.makedirs(output_dir, exist_ok=True)  # cria a pasta se não existir
+    output_file = os.path.join(output_dir, "sentiment_analysis_results.txt")
     try:
         with open(output_file, 'w', encoding='utf-8') as f:
             f.write("Análise de Sentimentos das Letras do Spotify\n")

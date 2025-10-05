@@ -3,10 +3,24 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#ifdef _WIN32
+#include <direct.h>
+#else
+#include <sys/stat.h>
+#endif
 
 #define MAX_LINE_LENGTH 1000
 #define MAX_ARTIST_NAME 200
 #define MAX_ARTISTS 50000
+
+// Função para criar diretório se não existir
+void create_results_dir() {
+#ifdef _WIN32
+    _mkdir("results");
+#else
+    mkdir("results", 0755);
+#endif
+}
 
 typedef struct {
     char name[MAX_ARTIST_NAME];
@@ -292,8 +306,11 @@ int main(int argc, char *argv[]) {
         // Ordena artistas por número de músicas
         qsort(global_artists, global_artist_count, sizeof(ArtistCount), compare_artist_counts);
         
+        // Cria diretório results se não existir
+        create_results_dir();
+        
         // Escreve resultado em arquivo
-        FILE *output_file = fopen("artist_count_results.txt", "w");
+        FILE *output_file = fopen("results/artist_count_results.txt", "w");
         fprintf(output_file, "Artistas com Mais Musicas no Spotify\n");
         fprintf(output_file, "====================================\n\n");
         
@@ -313,7 +330,7 @@ int main(int argc, char *argv[]) {
         }
         
         fclose(output_file);
-        printf("Resultado salvo em artist_count_results.txt\n");
+        printf("Resultado salvo em results/artist_count_results.txt\n");
         printf("Total de artistas unicos: %d\n", global_artist_count);
         printf("Total de musicas processadas: %d\n", total_songs);
         

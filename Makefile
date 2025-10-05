@@ -3,38 +3,40 @@ CFLAGS = -Wall -O2 -std=c99
 MPIINC = -I"C:\Program Files (x86)\Microsoft SDKs\MPI\Include"
 MPILIB = -L"C:\Program Files (x86)\Microsoft SDKs\MPI\Lib\x64" -lmsmpi
 
-WORD_COUNT_EXEC = word_count_mpi.exe
-ARTIST_COUNT_EXEC = artist_count_mpi.exe
+WORD_COUNT_EXEC = exe/word_count_mpi.exe
+ARTIST_COUNT_EXEC = exe/artist_count_mpi.exe
 
-WORD_COUNT_SRC = word_count_mpi.c
-ARTIST_COUNT_SRC = artist_count_mpi.c
+WORD_COUNT_SRC = src/word_count_mpi.c
+ARTIST_COUNT_SRC = src/artist_count_mpi.c
 
 all: $(WORD_COUNT_EXEC) $(ARTIST_COUNT_EXEC)
 
 $(WORD_COUNT_EXEC): $(WORD_COUNT_SRC)
 	@echo Compilando programa de contagem de palavras...
+	@if not exist exe mkdir exe
 	$(CC) $(CFLAGS) $(MPIINC) -o $(WORD_COUNT_EXEC) $(WORD_COUNT_SRC) $(MPILIB)
 	@echo Programa $(WORD_COUNT_EXEC) compilado com sucesso!
 
 $(ARTIST_COUNT_EXEC): $(ARTIST_COUNT_SRC)
 	@echo Compilando programa de contagem de artistas...
+	@if not exist exe mkdir exe
 	$(CC) $(CFLAGS) $(MPIINC) -o $(ARTIST_COUNT_EXEC) $(ARTIST_COUNT_SRC) $(MPILIB)
 	@echo Programa $(ARTIST_COUNT_EXEC) compilado com sucesso!
 
 run-words: $(WORD_COUNT_EXEC)
 	@echo Executando contagem de palavras com 4 processos...
-	mpiexec -n 4 ./$(WORD_COUNT_EXEC)
+	mpiexec -n 4 $(WORD_COUNT_EXEC)
 
 run-artists: $(ARTIST_COUNT_EXEC)
 	@echo Executando contagem de artistas com 4 processos...
-	mpiexec -n 4 ./$(ARTIST_COUNT_EXEC)
+	mpiexec -n 4 $(ARTIST_COUNT_EXEC)
 
 run-all: run-words run-artists
 
 clean:
 	@echo Removendo arquivos compilados...
-	-del $(WORD_COUNT_EXEC) $(ARTIST_COUNT_EXEC) 2>nul || true
-	-del word_count_results.txt artist_count_results.txt 2>nul || true
+	-del $(WORD_COUNT_EXEC) $(ARTIST_COUNT_EXEC) 2>nul
+	-del results\word_count_results.txt results\artist_count_results.txt 2>nul
 	@echo Limpeza concluída!
 
 clean-exec:
@@ -43,13 +45,13 @@ clean-exec:
 
 clean-results:
 	@echo Removendo arquivos de resultado...
-	-del word_count_results.txt artist_count_results.txt sentiment_analysis_results.txt 2>nul || true
+	-del results\word_count_results.txt results\artist_count_results.txt results\sentiment_analysis_results.txt 2>nul || true
 
 sentiment-analysis:
 	@echo Executando análise de sentimentos...
 	@if not exist sentiment_analysis_env (echo Criando ambiente virtual Python... && python -m venv sentiment_analysis_env)
 	@echo Ativando ambiente e executando análise...
-	@call run_sentiment_analysis.bat
+	@cd src && python sentiment_analysis.py
 
 check-mpi:
 	@echo Verificando instalação do MPI...
@@ -86,8 +88,8 @@ help:
 	@echo   make help               - Mostra esta ajuda
 	@echo.
 	@echo Para executar com número diferente de processos:
-	@echo   mpiexec -n [num_processos] ./word_count_mpi.exe
-	@echo   mpiexec -n [num_processos] ./artist_count_mpi.exe
+	@echo   mpiexec -n [num_processos] exe/word_count_mpi.exe
+	@echo   mpiexec -n [num_processos] exe/artist_count_mpi.exe
 	@echo.
 
 .PHONY: all run-words run-artists run-all sentiment-analysis clean clean-exec clean-results check-mpi check-python help

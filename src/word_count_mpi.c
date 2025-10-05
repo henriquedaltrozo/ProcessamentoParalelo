@@ -3,10 +3,24 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#ifdef _WIN32
+#include <direct.h>
+#else
+#include <sys/stat.h>
+#endif
 
 #define MAX_LINE_LENGTH 10000
 #define MAX_WORD_LENGTH 100
 #define MAX_WORDS 100000
+
+// Função para criar diretório se não existir
+void create_results_dir() {
+#ifdef _WIN32
+    _mkdir("results");
+#else
+    mkdir("results", 0755);
+#endif
+}
 
 typedef struct {
     char word[MAX_WORD_LENGTH];
@@ -200,8 +214,11 @@ int main(int argc, char *argv[]) {
         // Ordena palavras por frequência
         qsort(global_words, global_word_count, sizeof(WordCount), compare_word_counts);
         
+        // Cria diretório results se não existir
+        create_results_dir();
+        
         // Escreve resultado em arquivo
-        FILE *output_file = fopen("word_count_results.txt", "w");
+        FILE *output_file = fopen("results/word_count_results.txt", "w");
         fprintf(output_file, "Contagem de Palavras nas Letras do Spotify\n");
         fprintf(output_file, "==========================================\n\n");
         
@@ -210,7 +227,7 @@ int main(int argc, char *argv[]) {
         }
         
         fclose(output_file);
-        printf("Resultado salvo em word_count_results.txt\n");
+        printf("Resultado salvo em results/word_count_results.txt\n");
         printf("Total de palavras unicas: %d\n", global_word_count);
         
     } else {
