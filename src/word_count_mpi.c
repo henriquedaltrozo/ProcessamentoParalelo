@@ -222,7 +222,7 @@ int main(int argc, char *argv[]) {
         fprintf(output_file, "Contagem de Palavras nas Letras do Spotify\n");
         fprintf(output_file, "==========================================\n\n");
         
-        for (int i = 0; i < global_word_count && i < 1000; i++) {  // Top 1000 palavras
+        for (int i = 0; i < global_word_count; i++) {  // Todas as palavras
             fprintf(output_file, "%d. %s: %d\n", i+1, global_words[i].word, global_words[i].count);
         }
         

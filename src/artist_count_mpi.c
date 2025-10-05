@@ -321,10 +321,10 @@ int main(int argc, char *argv[]) {
         
         fprintf(output_file, "Total de artistas unicos: %d\n", global_artist_count);
         fprintf(output_file, "Total de musicas: %d\n\n", total_songs);
-        fprintf(output_file, "Top 100 Artistas:\n");
-        fprintf(output_file, "-----------------\n");
+        fprintf(output_file, "Todos os Artistas (ordenados por número de músicas):\n");
+        fprintf(output_file, "--------------------------------------------------\n");
         
-        for (int i = 0; i < global_artist_count && i < 100; i++) {  // Top 100 artistas
+        for (int i = 0; i < global_artist_count; i++) {  // Todos os artistas
             fprintf(output_file, "%d. %s: %d musicas\n", 
                    i+1, global_artists[i].name, global_artists[i].song_count);
         }
