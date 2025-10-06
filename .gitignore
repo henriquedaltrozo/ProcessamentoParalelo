@@ -54,11 +54,6 @@ dkms.conf
 # debug information files
 *.dwo
 
-word_count_results.txt
-artist_count_results.txt
-sentiment_analysis_results.txt
-performance_analysis.txt
-
 # Python
 __pycache__/
 *.py[cod]

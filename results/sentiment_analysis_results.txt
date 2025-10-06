@@ -1,0 +1,19 @@
+Análise de Sentimentos das Letras do Spotify
+==================================================
+
+Data da análise: 06/10/2025 19:22:22
+Modelo utilizado: llama3:latest
+Músicas processadas: 20
+Músicas ignoradas: 759
+
+Distribuição de Sentimentos:
+------------------------------
+Positiva: 14 músicas (70.0%)
+Neutra: 3 músicas (15.0%)
+Negativa: 3 músicas (15.0%)
+
+Total: 20 músicas
+
+Interpretação dos Resultados:
+------------------------------
+• Predominância de letras com sentimento POSITIVO
