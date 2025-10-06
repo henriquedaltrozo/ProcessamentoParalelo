@@ -1,9 +1,3 @@
-#!/usr/bin/env python3
-"""
-Script de Benchmark para Análise de Desempenho
-Executa os programas MPI com diferentes números de processos
-"""
-
 import subprocess
 import os
 import time
@@ -15,7 +9,7 @@ def run_mpi_program(program, num_processes):
         start_time = time.time()
         result = subprocess.run([
             'mpiexec', '-n', str(num_processes), f'./exe/{program}.exe'
-        ], capture_output=True, text=True, timeout=300)  # 5 min timeout
+        ], capture_output=True, text=True, timeout=300) 
         end_time = time.time()
         
         if result.returncode == 0:
@@ -36,14 +30,12 @@ def main():
     print("BENCHMARK DE DESEMPENHO - PROCESSAMENTO PARALELO")
     print("="*60)
     
-    # Verifica se os executáveis existem
     programs = ['word_count_mpi', 'artist_count_mpi']
     for program in programs:
         if not os.path.exists(f'exe/{program}.exe'):
             print(f"Erro: {program}.exe não encontrado. Execute 'make' primeiro.")
             return
     
-    # Testa com diferentes números de processos
     process_counts = [1, 2, 4, 8]
     
     results = {}
@@ -64,7 +56,6 @@ def main():
         if times:
             results[program] = times
         
-    # Gera relatório de desempenho
     generate_performance_report(results)
 
 def generate_performance_report(results):
@@ -88,8 +79,7 @@ def generate_performance_report(results):
                 f.write(f"{procs:<10} {exec_time:<12.2f}\n")
             
             f.write("\n" + "="*50 + "\n\n")
-        
-        # Conclusões gerais
+
         f.write("CONCLUSÕES GERAIS:\n")
         f.write("-" * 20 + "\n")
         f.write("• O paralelismo é mais efetivo para tarefas computacionalmente intensivas\n")
@@ -100,7 +90,6 @@ def generate_performance_report(results):
     print(f"\nRelatório de desempenho salvo em: results/performance_analysis.txt")
 
 if __name__ == "__main__":
-    # Verifica se está no diretório correto
     if not os.path.exists("data/spotify_millsongdata.csv"):
         print("Erro: Dataset não encontrado. Execute este script no diretório raiz do projeto.")
         exit(1)

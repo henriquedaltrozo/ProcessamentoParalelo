@@ -1,9 +1,3 @@
-#!/usr/bin/env python3
-"""
-Análise de Sentimentos das Letras do Spotify - Versão Final
-Classifica letras em: Positiva, Neutra, Negativa usando Ollama
-"""
-
 import csv
 import os
 import re
@@ -24,7 +18,7 @@ def extract_lyrics_from_csv(line):
         reader = csv.reader(io.StringIO(line))
         row = next(reader)
         if len(row) >= 4:
-            return row[3]  # Campo 4 = letras
+            return row[3] 
     except:
         pass
     return None
@@ -34,12 +28,9 @@ def clean_lyrics(text):
     if not text:
         return ""
     
-    # Remove tags HTML
     text = re.sub(r'<[^>]+>', '', text)
-    # Remove caracteres de escape
     text = text.replace('\\n', '\n').replace('\\r', '\r')
     text = text.replace('\\"', '"').replace("\\'", "'")
-    # Normaliza espaços
     text = re.sub(r'\s+', ' ', text)
     
     return text.strip()
@@ -49,7 +40,6 @@ def classify_sentiment(lyrics, model="llama3:latest"):
     if not lyrics or len(lyrics) < 15:
         return "Neutra"
     
-    # Limita tamanho para evitar timeout
     if len(lyrics) > 1000:
         lyrics = lyrics[:1000] + "..."
     
@@ -95,14 +85,12 @@ def main():
     print("ANÁLISE DE SENTIMENTOS DAS LETRAS DO SPOTIFY")
     print("=" * 60)
     
-    # Verifica conexão Ollama
     try:
         models = ollama.list()
         available_models = [m.get('name', '') for m in models.get('models', [])]
         print(f"✓ Ollama conectado")
         print(f"  Modelos disponíveis: {available_models}")
         
-        # Usa primeiro modelo disponível que contenha 'llama'
         model_to_use = "llama3:latest"
         for model in available_models:
             if 'llama' in model.lower():
@@ -116,9 +104,8 @@ def main():
         print("Certifique-se de que o Ollama está rodando com: ollama serve")
         return
     
-    # Configurações
     csv_file = "../data/spotify_millsongdata.csv"
-    max_songs = 20  # Limite otimizado para demonstração
+    max_songs = 20 
     
     counts = defaultdict(int)
     processed = 0
@@ -129,38 +116,32 @@ def main():
     
     try:
         with open(csv_file, 'r', encoding='utf-8', errors='ignore') as f:
-            # Pula cabeçalho
             header = next(f)
             
             for line_num, line in enumerate(f, 1):
                 if processed >= max_songs:
                     break
                 
-                # Extrai letras
                 lyrics = extract_lyrics_from_csv(line)
                 if not lyrics:
                     skipped += 1
                     continue
                 
-                # Limpa letras
                 clean_text = clean_lyrics(lyrics)
                 if len(clean_text) < 20:  # Muito curta
                     skipped += 1
                     continue
                 
-                # Classifica sentimento
                 sentiment = classify_sentiment(clean_text, model_to_use)
                 counts[sentiment] += 1
                 processed += 1
                 
-                # Log progresso
                 if processed % 10 == 0:
                     print(f"Processadas {processed} músicas - "
                           f"Positiva: {counts['Positiva']}, "
                           f"Neutra: {counts['Neutra']}, "
                           f"Negativa: {counts['Negativa']}")
                 
-                # Pausa para não sobrecarregar
                 time.sleep(0.3)
     
     except FileNotFoundError:
@@ -170,7 +151,6 @@ def main():
         print(f"Erro durante processamento: {e}")
         return
     
-    # Resultados finais
     total = sum(counts.values())
     
     print("\n" + "=" * 60)
@@ -191,9 +171,8 @@ def main():
     print("-" * 30)
     print(f"{'Total':>10}: {total:>4} músicas")
     
-    # Salva resultados
     output_dir = os.path.join(os.path.dirname(__file__), "..", "results")
-    os.makedirs(output_dir, exist_ok=True)  # cria a pasta se não existir
+    os.makedirs(output_dir, exist_ok=True)  
     output_file = os.path.join(output_dir, "sentiment_analysis_results.txt")
     try:
         with open(output_file, 'w', encoding='utf-8') as f:
@@ -214,7 +193,6 @@ def main():
             
             f.write(f"\nTotal: {total} músicas\n")
             
-            # Adiciona interpretação dos resultados
             f.write("\nInterpretação dos Resultados:\n")
             f.write("-" * 30 + "\n")
             
@@ -234,7 +212,6 @@ def main():
     except Exception as e:
         print(f"Erro ao salvar resultados: {e}")
     
-    # Finaliza medição de tempo
     end_time = time.time()
     total_time = end_time - start_time
     print(f"Tempo de execução: {total_time:.2f} segundos")

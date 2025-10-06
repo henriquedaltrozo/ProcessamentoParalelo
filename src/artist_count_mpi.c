@@ -78,26 +78,20 @@ int compare_artist_counts(const void *a, const void *b) {
     return ab->song_count - aa->song_count;
 }
 
-// Função para extrair o artista de uma linha CSV completa
 char* extract_artist_from_csv(char *line, char *artist_buffer) {
     int i = 0;
     int j = 0;
     
-    // Limpa o buffer
     artist_buffer[0] = '\0';
     
-    // O artista é o primeiro campo, vai até a primeira vírgula
-    // Se começar com aspas, vai até as aspas de fechamento + vírgula
     if (line[0] == '"') {
         i = 1; // Pula a primeira aspa
         while (line[i] && j < MAX_ARTIST_NAME - 1) {
             if (line[i] == '"') {
                 if (line[i+1] == '"') {
-                    // Aspas duplas escapadas
                     artist_buffer[j++] = '"';
                     i += 2;
                 } else {
-                    // Fim do campo com aspas
                     break;
                 }
             } else {
@@ -105,7 +99,6 @@ char* extract_artist_from_csv(char *line, char *artist_buffer) {
             }
         }
     } else {
-        // Campo sem aspas, vai até a primeira vírgula
         while (line[i] && line[i] != ',' && j < MAX_ARTIST_NAME - 1) {
             artist_buffer[j++] = line[i++];
         }
@@ -113,7 +106,6 @@ char* extract_artist_from_csv(char *line, char *artist_buffer) {
     
     artist_buffer[j] = '\0';
     
-    // Remove espaços do início e fim
     char *start = artist_buffer;
     while (*start == ' ' || *start == '\t') start++;
     
@@ -131,39 +123,31 @@ char* extract_artist_from_csv(char *line, char *artist_buffer) {
     return artist_buffer;
 }
 
-// Função para verificar se uma linha parece ser início de um novo registro CSV
 int is_new_csv_record(char *line) {
-    // Verifica se tem o padrão básico de um registro CSV
-    // Não deve começar com espaço/tab (que indica continuação de texto)
     if (line[0] == ' ' || line[0] == '\t' || line[0] == '\n' || line[0] == '\r') return 0;
     
-    // Linha muito curta provavelmente não é um registro
     if (strlen(line) < 10) return 0;
     
-    // Deve ter pelo menos 2 vírgulas (mínimo para artist,song,link)
     int comma_count = 0;
     int in_quotes = 0;
     
-    for (int i = 0; line[i] && i < 500; i++) {  // Limita busca para performance
+    for (int i = 0; line[i] && i < 500; i++) {  
         if (line[i] == '"') {
             in_quotes = !in_quotes;
         } else if (line[i] == ',' && !in_quotes) {
             comma_count++;
-            if (comma_count >= 2) return 1;  // Retorna logo que encontra 2 vírgulas
+            if (comma_count >= 2) return 1;  
         }
     }
     
     return comma_count >= 2;
 }
 
-// Função para verificar se é um nome de artista válido
 int is_valid_artist_name(char *name) {
     if (strlen(name) == 0) return 0;
     
-    // Muito curto provavelmente não é nome de artista
     if (strlen(name) < 2) return 0;
     
-    // Lista expandida de palavras/frases comuns que não são artistas
     const char* common_phrases[] = {
         "Oh", "Yeah", "No", "Hey", "Well", "Ooh", "Yes", "Baby", "La", "Ah", 
         "So", "I", "You", "And", "The", "A", "An", "In", "On", "At", "To", 
@@ -177,7 +161,6 @@ int is_valid_artist_name(char *name) {
         "Talk", "Speak", "Call", "Try", "Help", "Work", "Play", "Stop", "Start",
         "End", "Begin", "Keep", "Let", "Put", "Turn", "Move", "Run", "Walk",
         "Sit", "Stand", "Open", "Close", "Show", "Hide", "Send", "Bring",
-        // Palavras adicionais que não são artistas
         "Na", "Da", "De", "Do", "Em", "Para", "Por", "Com", "Sem", "Mas",
         "Ou", "E", "O", "A", "Um", "Uma", "Uns", "Umas", "Este", "Esta",
         "Isto", "Esse", "Essa", "Isso", "Aquele", "Aquela", "Aquilo",
@@ -200,10 +183,8 @@ int is_valid_artist_name(char *name) {
         "Beautiful", "Wonderful", "Amazing", "Special", "Perfect", "Great",
         "Money", "Power", "Fame", "Success", "Failure", "Dreams", "Hope",
         "Pain", "Love", "Hate", "Peace", "War", "Freedom", "Truth", "Lies",
-        // Interjeições e expressões comuns em letras
         "Uh", "Uhh", "Uhhh", "Mm", "Mmm", "Mmmm", "Hm", "Hmm", "Hmmm",
         "Aha", "Uh-huh", "Uh-oh", "Whoa", "Wow", "Yay", "Yep", "Nope",
-        // Frases comuns em letras de música
         "I know", "I think", "I feel", "I want", "I need", "I love", "I hate",
         "She said", "He said", "They said", "We said", "You said", "I said",
         "She's got", "He's got", "I've got", "You've got", "We've got",
@@ -212,14 +193,12 @@ int is_valid_artist_name(char *name) {
         NULL
     };
     
-    // Verifica se é uma palavra/frase comum
     for (int i = 0; common_phrases[i]; i++) {
         if (strcmp(name, common_phrases[i]) == 0) {
             return 0;
         }
     }
     
-    // Se for muito curto e só minúsculas, provavelmente não é artista
     if (strlen(name) <= 3) {
         int has_upper = 0;
         for (int i = 0; name[i]; i++) {
@@ -231,7 +210,6 @@ int is_valid_artist_name(char *name) {
         if (!has_upper) return 0;
     }
     
-    // Se tem espaços mas parece ser apenas palavras comuns, rejeita
     if (strchr(name, ' ')) {
         char temp[MAX_ARTIST_NAME];
         strcpy(temp, name);
@@ -250,7 +228,6 @@ int is_valid_artist_name(char *name) {
             word = strtok(NULL, " ");
         }
         
-        // Se mais de 50% das palavras são comuns, provavelmente não é artista
         if (total_words > 0 && (common_word_count * 2) > total_words) {
             return 0;
         }
@@ -271,15 +248,12 @@ int main(int argc, char *argv[]) {
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
     
-    // Sincroniza processos e inicia medição de tempo
     MPI_Barrier(MPI_COMM_WORLD);
     start_time = MPI_Wtime();
     
-    // Aloca memória para contagem de artistas
     local_artists = (ArtistCount *)malloc(MAX_ARTISTS * sizeof(ArtistCount));
     global_artists = (ArtistCount *)malloc(MAX_ARTISTS * sizeof(ArtistCount));
     
-    // Abre o arquivo CSV
     file = fopen("data/spotify_millsongdata.csv", "r");
     if (file == NULL) {
         printf("Erro ao abrir o arquivo CSV\n");
@@ -287,7 +261,6 @@ int main(int argc, char *argv[]) {
         return 1;
     }
     
-    // Pula o cabeçalho (todos os processos precisam fazer isso)
     fgets(line, MAX_LINE_LENGTH, file);
     
     int processed_records = 0;
@@ -295,15 +268,11 @@ int main(int argc, char *argv[]) {
     int record_number = 0;
     char artist_buffer[MAX_ARTIST_NAME];
     
-    // Processa TODAS as linhas do arquivo
     while (fgets(line, MAX_LINE_LENGTH, file)) {
         total_lines++;
         
-        // Verifica se é uma linha de início de novo registro CSV
         if (is_new_csv_record(line)) {
-            // Esta linha pertence ao processo atual?
             if (record_number % size == rank) {
-                // Extrai o nome do artista desta linha
                 char *artist = extract_artist_from_csv(line, artist_buffer);
                 if (strlen(artist) > 0) {
                     add_artist(local_artists, &local_artist_count, artist);
@@ -312,22 +281,17 @@ int main(int argc, char *argv[]) {
             }
             record_number++;
         }
-        // Continua lendo mesmo se não for início de registro
     }
     
     fclose(file);
     
-    // Log removido para saída mais limpa
     
-    // Coleta todos os resultados no processo 0
     if (rank == 0) {
-        // Copia contagem local para global
         for (int i = 0; i < local_artist_count; i++) {
             global_artists[i] = local_artists[i];
         }
         global_artist_count = local_artist_count;
         
-        // Recebe contagens de outros processos
         for (int p = 1; p < size; p++) {
             int received_count;
             MPI_Recv(&received_count, 1, MPI_INT, p, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
@@ -340,13 +304,10 @@ int main(int argc, char *argv[]) {
             free(received_artists);
         }
         
-        // Ordena artistas por número de músicas
         qsort(global_artists, global_artist_count, sizeof(ArtistCount), compare_artist_counts);
         
-        // Cria diretório results se não existir
         create_results_dir();
         
-        // Escreve resultado em arquivo
         FILE *output_file = fopen("results/artist_count_results.txt", "w");
         fprintf(output_file, "Artistas com Mais Musicas no Spotify\n");
         fprintf(output_file, "====================================\n\n");
@@ -361,14 +322,13 @@ int main(int argc, char *argv[]) {
         fprintf(output_file, "Todos os Artistas (ordenados por número de músicas):\n");
         fprintf(output_file, "--------------------------------------------------\n");
         
-        for (int i = 0; i < global_artist_count; i++) {  // Todos os artistas
+        for (int i = 0; i < global_artist_count; i++) { 
             fprintf(output_file, "%d. %s: %d musicas\n", 
                    i+1, global_artists[i].name, global_artists[i].song_count);
         }
         
         fclose(output_file);
         
-        // Finaliza medição de tempo
         MPI_Barrier(MPI_COMM_WORLD);
         end_time = MPI_Wtime();
         total_time = end_time - start_time;
@@ -380,11 +340,9 @@ int main(int argc, char *argv[]) {
         printf("Número de processos: %d\n", size);
         
     } else {
-        // Envia contagem local para o processo 0
         MPI_Send(&local_artist_count, 1, MPI_INT, 0, 0, MPI_COMM_WORLD);
         MPI_Send(local_artists, local_artist_count * sizeof(ArtistCount), MPI_BYTE, 0, 1, MPI_COMM_WORLD);
         
-        // Sincroniza para medição de tempo
         MPI_Barrier(MPI_COMM_WORLD);
     }
     

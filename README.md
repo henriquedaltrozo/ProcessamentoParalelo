@@ -25,18 +25,19 @@ make
 # Executar contagem de palavras e artistas
 make run-all
 
-# Contagem de palavras
-mpiexec -n 4 ./word_count_mpi.exe
+# Executar contagem de artistas
+make run-artists
 
-# Contagem de artistas
-mpiexec -n 4 ./artist_count_mpi.exe
+# Executar contagem de palavras
+make run-words
 ```
 
 ### Análise de Sentimentos (Python)
 
 ```bash
 # Executar análise de sentimentos
-python src/sentiment_analysis.py
+cd src
+python sentiment_analysis.py
 ```
 
 ### Análise de Desempenho
