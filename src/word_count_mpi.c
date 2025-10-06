@@ -40,11 +40,20 @@ void clean_word(char *word) {
     int i, j = 0;
     
     for (i = 0; i < len; i++) {
-        if (isalnum(word[i])) {
+        if (isalnum(word[i]) || word[i] == '\'') {  // Mantém apóstrofes para contrações
             word[j++] = word[i];
         }
     }
     word[j] = '\0';
+    
+    // Remove apóstrofes no início e fim
+    if (word[0] == '\'') {
+        memmove(word, word + 1, strlen(word));
+    }
+    len = strlen(word);
+    if (len > 0 && word[len-1] == '\'') {
+        word[len-1] = '\0';
+    }
 }
 
 // Função para adicionar ou incrementar palavra no array
@@ -69,17 +78,17 @@ void add_word(WordCount *words, int *word_count, char *word) {
 
 // Função para processar o texto de uma música
 void process_lyrics(char *lyrics, WordCount *words, int *word_count) {
-    char *token = strtok(lyrics, " \t\n\r,.-!?;:()[]{}\"'");
+    char *token = strtok(lyrics, " \t\n\r,.-!?;:()[]{}\"");
     
     while (token != NULL) {
         clean_word(token);
         to_lowercase(token);
         
-        if (strlen(token) > 0) {  // Inclui todas as palavras
+        if (strlen(token) > 0) {  // Contabiliza todas as palavras (exceto strings vazias)
             add_word(words, word_count, token);
         }
         
-        token = strtok(NULL, " \t\n\r,.-!?;:()[]{}\"'");
+        token = strtok(NULL, " \t\n\r,.-!?;:()[]{}\"");
     }
 }
 
@@ -141,49 +150,71 @@ int main(int argc, char *argv[]) {
     int total_lines_read = 0;
     int records_processed = 0;
     
+    // Buffer para acumular um registro CSV completo
+    char csv_buffer[MAX_LINE_LENGTH * 10];  // Buffer maior para registros multi-linha
+    csv_buffer[0] = '\0';
+    int in_quotes = 0;
+    
     // Processa TODAS as linhas do arquivo
     while (fgets(line, MAX_LINE_LENGTH, file)) {
         total_lines_read++;
         
-        // Verifica se esta linha parece ser início de um registro CSV
-        // (não começa com espaço/tab e tem vírgulas)
-        int is_record_start = (line[0] != ' ' && line[0] != '\t' && 
-                              line[0] != '\n' && line[0] != '\r' &&
-                              strchr(line, ',') != NULL);
+        // Adiciona linha ao buffer
+        strcat(csv_buffer, line);
         
-        if (is_record_start) {
-            // Esta linha pertence a este processo?
-            if (line_number % size == rank) {
-                // Faz uma cópia para não destruir a linha original
-                char line_copy[MAX_LINE_LENGTH];
-                strcpy(line_copy, line);
-                
-                // Parse da linha CSV para extrair o texto
-                strtok(line_copy, ",");        // artist
-                strtok(NULL, ",");           // song  
-                strtok(NULL, ",");           // link
-                char *text = strtok(NULL, "");
-                
-                if (text != NULL) {
-                    // Remove aspas do início e fim se existirem
-                    if (text[0] == '"') {
-                        text++;
-                        int len = strlen(text);
-                        if (len > 0 && text[len-1] == '"') {
-                            text[len-1] = '\0';
-                        }
-                    }
-                    
-                    // Processa as letras da música
-                    char text_copy[MAX_LINE_LENGTH];
-                    strcpy(text_copy, text);
-                    process_lyrics(text_copy, local_words, &local_word_count);
-                    records_processed++;
-                }
+        // Conta aspas para determinar se estamos dentro de um campo com texto
+        for (int i = 0; line[i]; i++) {
+            if (line[i] == '"') {
+                in_quotes = !in_quotes;
             }
-            line_number++;
         }
-        // Continua lendo independentemente se é início de registro ou não
+        
+        // Se não estamos dentro de aspas, temos um registro completo
+        if (!in_quotes && strlen(csv_buffer) > 0) {
+            // Verifica se parece ser um registro válido (tem vírgulas e não é só espaços)
+            if (strchr(csv_buffer, ',') != NULL && strspn(csv_buffer, " \t\n\r") != strlen(csv_buffer)) {
+                // Esta linha pertence a este processo?
+                if (line_number % size == rank) {
+                    // Faz uma cópia para não destruir o buffer original
+                    char buffer_copy[MAX_LINE_LENGTH * 10];
+                    strcpy(buffer_copy, csv_buffer);
+                    
+                    // Parse da linha CSV para extrair o texto (pula os 3 primeiros campos)
+                    strtok(buffer_copy, ",");  // artist
+                    strtok(NULL, ",");         // song
+                    strtok(NULL, ",");         // link
+                    char *text = strtok(NULL, "");
+                    
+                    if (text != NULL && strlen(text) > 10) {  // Só processa se tem texto substancial
+                        // Remove aspas do início e fim se existirem
+                        if (text[0] == '"') {
+                            text++;
+                            int len = strlen(text);
+                            if (len > 0 && text[len-1] == '"') {
+                                text[len-1] = '\0';
+                            }
+                        }
+                        
+                        // Remove quebras de linha extras
+                        for (int i = 0; text[i]; i++) {
+                            if (text[i] == '\n' || text[i] == '\r') {
+                                text[i] = ' ';
+                            }
+                        }
+                        
+                        // Processa as letras da música
+                        char text_copy[MAX_LINE_LENGTH * 10];
+                        strcpy(text_copy, text);
+                        process_lyrics(text_copy, local_words, &local_word_count);
+                        records_processed++;
+                    }
+                }
+                line_number++;
+            }
+            
+            // Limpa buffer para próximo registro
+            csv_buffer[0] = '\0';
+        }
     }
     
     fclose(file);
