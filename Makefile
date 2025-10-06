@@ -36,7 +36,7 @@ run-all: run-words run-artists
 clean:
 	@echo Removendo arquivos compilados...
 	-del $(WORD_COUNT_EXEC) $(ARTIST_COUNT_EXEC) 2>nul
-	-del results\word_count_results.txt results\artist_count_results.txt 2>nul
+	-del results\word_count_results.txt results\artist_count_results.txt results\performance_analysis.txt 2>nul
 	@echo Limpeza concluída!
 
 clean-exec:
@@ -92,4 +92,30 @@ help:
 	@echo   mpiexec -n [num_processos] exe/artist_count_mpi.exe
 	@echo.
 
-.PHONY: all run-words run-artists run-all sentiment-analysis clean clean-exec clean-results check-mpi check-python help
+benchmark: all
+	@echo Executando analise de desempenho...
+	python src/benchmark.py
+
+performance-test: all
+	@echo Testando diferentes numeros de processos...
+	@echo === CONTAGEM DE PALAVRAS ===
+	@echo 1 processo:
+	@mpiexec -n 1 $(WORD_COUNT_EXEC)
+	@echo.
+	@echo 2 processos:
+	@mpiexec -n 2 $(WORD_COUNT_EXEC)
+	@echo.
+	@echo 4 processos:
+	@mpiexec -n 4 $(WORD_COUNT_EXEC)
+	@echo.
+	@echo === CONTAGEM DE ARTISTAS ===
+	@echo 1 processo:
+	@mpiexec -n 1 $(ARTIST_COUNT_EXEC)
+	@echo.
+	@echo 2 processos:
+	@mpiexec -n 2 $(ARTIST_COUNT_EXEC)
+	@echo.
+	@echo 4 processos:
+	@mpiexec -n 4 $(ARTIST_COUNT_EXEC)
+
+.PHONY: all run-words run-artists run-all sentiment-analysis benchmark performance-test clean clean-exec clean-results check-mpi check-python help

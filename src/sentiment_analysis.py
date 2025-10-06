@@ -90,6 +90,7 @@ Responda APENAS com uma palavra: Positiva, Negativa ou Neutra"""
         return "Neutra"
 
 def main():
+    start_time = time.time()
     print("=" * 60)
     print("ANÁLISE DE SENTIMENTOS DAS LETRAS DO SPOTIFY")
     print("=" * 60)
@@ -233,6 +234,10 @@ def main():
     except Exception as e:
         print(f"Erro ao salvar resultados: {e}")
     
+    # Finaliza medição de tempo
+    end_time = time.time()
+    total_time = end_time - start_time
+    print(f"Tempo de execução: {total_time:.2f} segundos")
     print("=" * 60)
 
 if __name__ == "__main__":

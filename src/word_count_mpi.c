@@ -122,6 +122,7 @@ int compare_word_counts(const void *a, const void *b) {
 
 int main(int argc, char *argv[]) {
     int rank, size;
+    double start_time, end_time, total_time;
     FILE *file;
     char line[MAX_LINE_LENGTH];
     WordCount *local_words, *global_words;
@@ -130,6 +131,10 @@ int main(int argc, char *argv[]) {
     MPI_Init(&argc, &argv);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
+    
+    // Sincroniza processos e inicia medição de tempo
+    MPI_Barrier(MPI_COMM_WORLD);
+    start_time = MPI_Wtime();
     
     // Aloca memória para contagem de palavras
     local_words = (WordCount *)malloc(MAX_WORDS * sizeof(WordCount));
@@ -258,13 +263,24 @@ int main(int argc, char *argv[]) {
         }
         
         fclose(output_file);
+        
+        // Finaliza medição de tempo
+        MPI_Barrier(MPI_COMM_WORLD);
+        end_time = MPI_Wtime();
+        total_time = end_time - start_time;
+        
         printf("Resultado salvo em results/word_count_results.txt\n");
         printf("Total de palavras unicas: %d\n", global_word_count);
+        printf("Tempo de execução: %.2f segundos\n", total_time);
+        printf("Número de processos: %d\n", size);
         
     } else {
         // Envia contagem local para o processo 0
         MPI_Send(&local_word_count, 1, MPI_INT, 0, 0, MPI_COMM_WORLD);
         MPI_Send(local_words, local_word_count * sizeof(WordCount), MPI_BYTE, 0, 1, MPI_COMM_WORLD);
+        
+        // Sincroniza para medição de tempo
+        MPI_Barrier(MPI_COMM_WORLD);
     }
     
     free(local_words);

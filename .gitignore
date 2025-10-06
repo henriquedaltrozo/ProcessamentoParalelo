@@ -57,6 +57,7 @@ dkms.conf
 word_count_results.txt
 artist_count_results.txt
 sentiment_analysis_results.txt
+performance_analysis.txt
 
 # Python
 __pycache__/
@@ -88,3 +89,5 @@ sentiment_analysis_env/
 venv/
 env/
 ENV/
+
+.vscode
