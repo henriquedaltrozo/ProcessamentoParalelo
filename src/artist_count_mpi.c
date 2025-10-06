@@ -177,6 +177,38 @@ int is_valid_artist_name(char *name) {
         "Talk", "Speak", "Call", "Try", "Help", "Work", "Play", "Stop", "Start",
         "End", "Begin", "Keep", "Let", "Put", "Turn", "Move", "Run", "Walk",
         "Sit", "Stand", "Open", "Close", "Show", "Hide", "Send", "Bring",
+        // Palavras adicionais que não são artistas
+        "Na", "Da", "De", "Do", "Em", "Para", "Por", "Com", "Sem", "Mas",
+        "Ou", "E", "O", "A", "Um", "Uma", "Uns", "Umas", "Este", "Esta",
+        "Isto", "Esse", "Essa", "Isso", "Aquele", "Aquela", "Aquilo",
+        "Meu", "Minha", "Seu", "Sua", "Nosso", "Nossa", "Dele", "Dela",
+        "America", "América", "American", "Americain", "Americana",
+        "Don't", "Can't", "Won't", "Didn't", "Couldn't", "Wouldn't", "Shouldn't",
+        "Hasn't", "Haven't", "Isn't", "Aren't", "Wasn't", "Weren't", "Will",
+        "Would", "Should", "Could", "Might", "Must", "Shall", "May", "Can",
+        "Up", "Out", "Down", "Over", "Under", "Through", "Into", "Onto", "From",
+        "Back", "Away", "Home", "Off", "Around", "Along", "Across", "Past",
+        "Never", "Always", "Sometimes", "Often", "Usually", "Rarely", "Seldom",
+        "Just", "Only", "Even", "Still", "Yet", "Already", "Soon", "Later",
+        "Today", "Tomorrow", "Yesterday", "Tonight", "Morning", "Evening",
+        "Way", "Time", "Day", "Night", "Year", "Life", "World", "People",
+        "Place", "Thing", "Man", "Woman", "Girl", "Boy", "Child", "Mother",
+        "Father", "Friend", "Heart", "Mind", "Soul", "Body", "Eyes", "Face",
+        "Hands", "Voice", "Words", "Music", "Song", "Dance", "Party", "Fun",
+        "Good", "Bad", "Right", "Wrong", "True", "False", "Real", "New", "Old",
+        "Big", "Small", "Long", "Short", "Hot", "Cold", "Sweet", "Pretty",
+        "Beautiful", "Wonderful", "Amazing", "Special", "Perfect", "Great",
+        "Money", "Power", "Fame", "Success", "Failure", "Dreams", "Hope",
+        "Pain", "Love", "Hate", "Peace", "War", "Freedom", "Truth", "Lies",
+        // Interjeições e expressões comuns em letras
+        "Uh", "Uhh", "Uhhh", "Mm", "Mmm", "Mmmm", "Hm", "Hmm", "Hmmm",
+        "Aha", "Uh-huh", "Uh-oh", "Whoa", "Wow", "Yay", "Yep", "Nope",
+        // Frases comuns em letras de música
+        "I know", "I think", "I feel", "I want", "I need", "I love", "I hate",
+        "She said", "He said", "They said", "We said", "You said", "I said",
+        "She's got", "He's got", "I've got", "You've got", "We've got",
+        "Don't know", "Don't care", "Don't want", "Don't need", "Don't stop",
+        "Can't stop", "Won't stop", "Can't wait", "Won't wait", "Don't wait",
         NULL
     };
     
