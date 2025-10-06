@@ -59,7 +59,7 @@ def main():
                 times[procs] = exec_time
                 print(f"{exec_time:.2f}s")
             else:
-                print("FALHOU")
+                print("Falha na execução!")
         
         if times:
             results[program] = times
