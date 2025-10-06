@@ -67,7 +67,6 @@ Responda APENAS com uma palavra: Positiva, Negativa ou Neutra"""
         
         result = response['response'].strip().lower()
         
-        # Normaliza resposta
         if 'positiva' in result or 'positive' in result:
             return "Positiva"
         elif 'negativa' in result or 'negative' in result:
@@ -128,7 +127,7 @@ def main():
                     continue
                 
                 clean_text = clean_lyrics(lyrics)
-                if len(clean_text) < 20:  # Muito curta
+                if len(clean_text) < 20: 
                     skipped += 1
                     continue
                 

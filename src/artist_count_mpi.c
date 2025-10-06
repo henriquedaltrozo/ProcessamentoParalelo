@@ -13,7 +13,6 @@
 #define MAX_ARTIST_NAME 200
 #define MAX_ARTISTS 50000
 
-// Função para criar diretório se não existir
 void create_results_dir() {
 #ifdef _WIN32
     _mkdir("results");
@@ -27,14 +26,11 @@ typedef struct {
     int song_count;
 } ArtistCount;
 
-// Declarações das funções
 int is_valid_artist_name(char *name);
 
-// Função para adicionar ou incrementar artista no array
 void add_artist(ArtistCount *artists, int *artist_count, char *artist_name) {
     if (!is_valid_artist_name(artist_name)) return;
     
-    // Procura se o artista já existe
     for (int i = 0; i < *artist_count; i++) {
         if (strcmp(artists[i].name, artist_name) == 0) {
             artists[i].song_count++;
@@ -42,7 +38,6 @@ void add_artist(ArtistCount *artists, int *artist_count, char *artist_name) {
         }
     }
     
-    // Se não existe, adiciona novo artista
     if (*artist_count < MAX_ARTISTS) {
         strcpy(artists[*artist_count].name, artist_name);
         artists[*artist_count].song_count = 1;
@@ -50,7 +45,6 @@ void add_artist(ArtistCount *artists, int *artist_count, char *artist_name) {
     }
 }
 
-// Função para mesclar contagens de artistas
 void merge_artist_counts(ArtistCount *global_artists, int *global_count, 
                         ArtistCount *local_artists, int local_count) {
     for (int i = 0; i < local_count; i++) {
@@ -71,7 +65,6 @@ void merge_artist_counts(ArtistCount *global_artists, int *global_count,
     }
 }
 
-// Função de comparação para qsort
 int compare_artist_counts(const void *a, const void *b) {
     ArtistCount *aa = (ArtistCount *)a;
     ArtistCount *ab = (ArtistCount *)b;
@@ -85,7 +78,7 @@ char* extract_artist_from_csv(char *line, char *artist_buffer) {
     artist_buffer[0] = '\0';
     
     if (line[0] == '"') {
-        i = 1; // Pula a primeira aspa
+        i = 1;
         while (line[i] && j < MAX_ARTIST_NAME - 1) {
             if (line[i] == '"') {
                 if (line[i+1] == '"') {
@@ -345,7 +338,7 @@ int main(int argc, char *argv[]) {
         
         MPI_Barrier(MPI_COMM_WORLD);
     }
-    
+
     free(local_artists);
     free(global_artists);
     
